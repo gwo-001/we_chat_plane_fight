@@ -1,2 +1,2 @@
 # we_chat_plane_fight
-微信飞机大战
+微信飞机大战的小练习
