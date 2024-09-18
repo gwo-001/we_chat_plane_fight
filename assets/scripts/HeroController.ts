@@ -11,20 +11,20 @@ export class HeroController extends Component {
     start() {
         // 让飞机跟随拖动的位置
         this.node.on(NodeEventType.TOUCH_MOVE, (event: EventTouch) => {
+            // 这里获取到的是世界坐标。要转为相对坐标
             this.node.setPosition(event.getLocationX()-240, event.getLocationY()-426);
         })
-        // this.node.on(NodeEventType.MOUSE_MOVE,(event:EventTouch)=>{
-        //     this.node.setPosition(event.getLocationX(), event.getLocationY())
-        // })
-        // this.schedule(()=>{
-        //     let bulletIns = instantiate(this.bulletPrefab);
-        //     bulletIns.setParent(director.getScene());
-        //     bulletIns.setPosition(this.node.getPosition())
-        // },0.5)
+        // 没间隔0.5秒创建一个子弹
+        this.schedule(()=>{
+            console.log("创建子弹中……")
+            let bulletIns = instantiate(this.bulletPrefab);
+            bulletIns.setParent(director.getScene().getChildByName("Canvas"));
+            let playerPosition = this.node.getPosition();
+            bulletIns.setPosition(playerPosition.x, playerPosition.y+60);
+        },0.5)
     }
 
     update(deltaTime: number) {
-        // 每一帧都监听一下触摸的移动
 
     }
 }
