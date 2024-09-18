@@ -9,17 +9,18 @@ export class HeroController extends Component {
     bulletPrefab: Prefab = null;
 
     start() {
+        // 让飞机跟随拖动的位置
         this.node.on(NodeEventType.TOUCH_MOVE, (event: EventTouch) => {
-            this.node.setPosition(event.getLocationX(), event.getLocationY());
+            this.node.setPosition(event.getLocationX()-240, event.getLocationY()-426);
         })
         // this.node.on(NodeEventType.MOUSE_MOVE,(event:EventTouch)=>{
         //     this.node.setPosition(event.getLocationX(), event.getLocationY())
         // })
-        this.schedule(()=>{
-            let bulletIns = instantiate(this.bulletPrefab);
-            bulletIns.setParent(director.getScene());
-            bulletIns.setPosition(this.node.getPosition())
-        },0.5)
+        // this.schedule(()=>{
+        //     let bulletIns = instantiate(this.bulletPrefab);
+        //     bulletIns.setParent(director.getScene());
+        //     bulletIns.setPosition(this.node.getPosition())
+        // },0.5)
     }
 
     update(deltaTime: number) {

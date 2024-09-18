@@ -16,8 +16,8 @@ export class BgController extends Component {
         for (let child of this.node.children) {
             let chidrenX = child.getPosition().x;
             child.setPosition(child.position.x, child.position.y - (50 * deltaTime))
-            if (child.position.y < -852) {
-                child.setPosition(chidrenX,852)
+            if (child.position.y < -850) {
+                child.setPosition(chidrenX,850)
             }
         }
     }
