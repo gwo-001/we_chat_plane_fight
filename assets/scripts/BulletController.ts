@@ -1,4 +1,5 @@
-import {_decorator, Component, Node} from 'cc';
+import {_decorator, Component, director, Node} from 'cc';
+import {EnemyController} from "db://assets/scripts/EnemyController";
 
 const {ccclass, property} = _decorator;
 
@@ -8,7 +9,7 @@ export class BulletController extends Component {
     speed: number = 800;
 
     start() {
-
+        // director.
     }
 
     update(dt: number) {
@@ -19,6 +20,14 @@ export class BulletController extends Component {
         if (this.node.getPosition().y > 852) {
             this.node.destroy();
         }
+    }
+
+    onCollisionEnter(other) {
+        // 如果碰撞的是敌机
+        if (other.tag === 1) {
+            this.node.destroy();
+        }
+
     }
 }
 

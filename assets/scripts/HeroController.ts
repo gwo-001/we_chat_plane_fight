@@ -22,6 +22,7 @@ export class HeroController extends Component {
             let playerPosition = this.node.getPosition();
             bulletIns.setPosition(playerPosition.x, playerPosition.y+60);
         },0.5)
+        // 开启碰撞检测
     }
 
     update(deltaTime: number) {
