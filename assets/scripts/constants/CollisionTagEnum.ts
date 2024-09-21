@@ -1,0 +1,7 @@
+/**
+ *
+ */
+enum CollisionTagEnum {
+    ENEMY,
+    BULLET,
+}

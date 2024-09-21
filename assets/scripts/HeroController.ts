@@ -16,7 +16,6 @@ export class HeroController extends Component {
         })
         // 没间隔0.5秒创建一个子弹
         this.schedule(()=>{
-            console.log("创建子弹中……")
             let bulletIns = instantiate(this.bulletPrefab);
             bulletIns.setParent(director.getScene().getChildByName("Canvas"));
             let playerPosition = this.node.getPosition();

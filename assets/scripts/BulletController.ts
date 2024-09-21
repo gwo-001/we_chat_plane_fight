@@ -1,5 +1,9 @@
-import {_decorator, Component, director, Node} from 'cc';
+import {_decorator, BoxCollider2D, Collider2D, Component, Contact2DType} from 'cc';
 import {EnemyController} from "db://assets/scripts/EnemyController";
+
+/**
+ * import {EnemyController} from "db://assets/scripts/EnemyController";
+ */
 
 const {ccclass, property} = _decorator;
 
@@ -9,7 +13,10 @@ export class BulletController extends Component {
     speed: number = 800;
 
     start() {
-        // director.
+        let collider = this.getComponent(BoxCollider2D);
+        if (collider) {
+            collider.on(Contact2DType.BEGIN_CONTACT, this.onBeginContact, this)
+        }
     }
 
     update(dt: number) {
@@ -22,13 +29,22 @@ export class BulletController extends Component {
         }
     }
 
-    onCollisionEnter(other) {
-        // 如果碰撞的是敌机
-        if (other.tag === 1) {
-            this.node.destroy();
-        }
+    // 碰撞开始时的回调
+    onBeginContact(self: Collider2D, other: Collider2D) {
+        console.log(other.tag);
+        if (other.tag === 0) {
+            // 调用一下敌机的摧毁动画
+            let enemyController = other.node.getComponent(EnemyController);
+            if (enemyController) {
+                console.log("获取到敌机的控制脚本")
+                enemyController.enemyDie()
+                // self.node.destroy();
+            }
 
+            // self.node.destroy();
+        }
     }
+
 }
 
 

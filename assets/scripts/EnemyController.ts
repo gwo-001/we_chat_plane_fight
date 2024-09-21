@@ -1,10 +1,14 @@
-import {_decorator, Component, Node, resources, Sprite, SpriteFrame} from 'cc';
+import {_decorator, BoxCollider2D, Component, Node, resources, Sprite, SpriteFrame} from 'cc';
 
 const {ccclass, property} = _decorator;
 
 @ccclass('EnemyController')
 export class EnemyController extends Component {
     start() {
+        // let boxCollider2D = this.node.getComponent(BoxCollider2D);
+        // if (boxCollider2D) {
+        //     console.log("敌机的2D碰撞存在")
+        // }
 
     }
 
@@ -23,7 +27,7 @@ export class EnemyController extends Component {
         // 300 毫米后销毁
         this.scheduleOnce(() => {
             this.node.destroy()
-        }, 300)
+        }, 0.5)
     }
 }
 
