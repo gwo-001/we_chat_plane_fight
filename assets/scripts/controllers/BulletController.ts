@@ -31,16 +31,13 @@ export class BulletController extends Component {
 
     // 碰撞开始时的回调
     onBeginContact(self: Collider2D, other: Collider2D) {
-        console.log(other.tag);
         if (other.tag === 0) {
             // 调用一下敌机的摧毁动画
             let enemyController = other.node.getComponent(EnemyController);
             if (enemyController) {
-                console.log("获取到敌机的控制脚本")
                 enemyController.enemyDie()
                 // self.node.destroy();
             }
-
             // self.node.destroy();
         }
     }

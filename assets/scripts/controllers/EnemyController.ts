@@ -1,15 +1,22 @@
-import {_decorator, BoxCollider2D, Component, Node, resources, Sprite, SpriteFrame} from 'cc';
+import {
+    _decorator,
+    BoxCollider2D,
+    Collider2D,
+    Component,
+    Contact2DType,
+    Node,
+    resources,
+    Sprite,
+    SpriteFrame
+} from 'cc';
 
 const {ccclass, property} = _decorator;
 
 @ccclass('EnemyController')
 export class EnemyController extends Component {
     start() {
-        // let boxCollider2D = this.node.getComponent(BoxCollider2D);
-        // if (boxCollider2D) {
-        //     console.log("敌机的2D碰撞存在")
-        // }
-
+        let boxCollider2D = this.node.getComponent(BoxCollider2D);
+        boxCollider2D.on(Contact2DType.BEGIN_CONTACT, this.onBeginContact, this)
     }
 
     update(dt: number) {
@@ -28,6 +35,13 @@ export class EnemyController extends Component {
         this.scheduleOnce(() => {
             this.node.destroy()
         }, 0.5)
+    }
+
+    private onBeginContact(self:Collider2D,other:Collider2D) {
+        console.log()
+        if (other.tag === 3) {
+            other.destroy();
+        }
     }
 }
 
