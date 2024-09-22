@@ -857,7 +857,6 @@
     "instance": {
       "__id__": 30
     },
-    "targetOverrides": null,
     "nestedPrefabInstanceRoots": null
   },
   {
@@ -971,14 +970,9 @@
       "__id__": 40
     },
     "propertyPath": [
-      "_lpos"
+      "_name"
     ],
-    "value": {
-      "__type__": "cc.Vec3",
-      "x": 0,
-      "y": 0,
-      "z": 0
-    }
+    "value": "1"
   },
   {
     "__type__": "cc.TargetInfo",
