@@ -132,6 +132,7 @@
       "__id__": 4
     },
     "speed": 800,
+    "velocity": null,
     "_id": ""
   },
   {
@@ -237,6 +238,11 @@
       "__id__": 11
     },
     "speed": 800,
+    "velocity": {
+      "__type__": "cc.Vec2",
+      "x": 0,
+      "y": 30
+    },
     "_id": ""
   },
   {
@@ -293,9 +299,9 @@
     "bullet": false,
     "awakeOnLoad": true,
     "_group": 1,
-    "_type": 2,
+    "_type": 1,
     "_allowSleep": true,
-    "_gravityScale": 1,
+    "_gravityScale": 0,
     "_linearDamping": 0,
     "_angularDamping": 0,
     "_linearVelocity": {

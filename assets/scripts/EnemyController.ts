@@ -6,8 +6,10 @@ import {
     Contact2DType,
     Node,
     resources,
+    RigidBody2D,
     Sprite,
-    SpriteFrame
+    SpriteFrame,
+    Vec2
 } from 'cc';
 
 const {ccclass, property} = _decorator;
@@ -15,13 +17,17 @@ const {ccclass, property} = _decorator;
 @ccclass('EnemyController')
 export class EnemyController extends Component {
 
+    @property(Vec2)
+    velocity: Vec2 = null!;
+
     start() {
+        let rigidBody2D = this.node.getComponent(RigidBody2D);
+        this.node.getComponent(RigidBody2D)!.linearVelocity = this.velocity;
     }
 
     update(dt: number) {
         if (this.node.getPosition().y < 0) {
             this.destroy();
-            console.log("敌机已经被摧毁")
         }
     }
 

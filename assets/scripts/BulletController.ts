@@ -1,4 +1,4 @@
-import {_decorator, BoxCollider2D, Collider2D, Component, Contact2DType} from 'cc';
+import {_decorator, BoxCollider2D, Collider2D, Component, Contact2DType, RigidBody2D, UITransform, Vec2} from 'cc';
 import {EnemyController} from "db://assets/scripts/EnemyController";
 
 /**
@@ -9,24 +9,26 @@ const {ccclass, property} = _decorator;
 
 @ccclass('BulletController')
 export class BulletController extends Component {
-    @property
-    speed: number = 800;
+    @property(Vec2)
+    velocity: Vec2;
+
 
     start() {
-        let collider = this.getComponent(BoxCollider2D);
+        let thisNode = this.node;
+        // 监听子弹的碰撞
+        let collider = thisNode.getComponent(BoxCollider2D);
         if (collider) {
             collider.on(Contact2DType.BEGIN_CONTACT, this.onBeginContact, this)
         }
+        // 给子弹赋予一个初速度
+        thisNode.getComponent(RigidBody2D)!.linearVelocity = this.velocity
     }
 
     update(dt: number) {
-        let oldPosition = this.node.getPosition();
-        // 编写子弹移动逻辑
-        this.node.setPosition(oldPosition.x, oldPosition.y + 800 * dt)
-        // 子弹飞出屏幕之后销毁掉
+        // // 子弹飞出屏幕之后销毁掉
         if (this.node.getPosition().y > 852) {
             console.log("子弹销毁")
-            this.destroy();
+            this.node.destroy();
         }
     }
 

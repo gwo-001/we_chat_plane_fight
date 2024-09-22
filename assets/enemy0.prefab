@@ -153,6 +153,11 @@
     "__prefab": {
       "__id__": 7
     },
+    "velocity": {
+      "__type__": "cc.Vec2",
+      "x": 0,
+      "y": -10
+    },
     "_id": ""
   },
   {
@@ -209,7 +214,7 @@
     "bullet": false,
     "awakeOnLoad": true,
     "_group": 1,
-    "_type": 2,
+    "_type": 1,
     "_allowSleep": true,
     "_gravityScale": 1,
     "_linearDamping": 0,

@@ -11,20 +11,22 @@ export class EnemyProducer extends Component {
     start() {
         // 如果玩家存活，那么每一秒产生一个敌机
         this.schedule(() => {
-
             let heroController = this.getComponentInChildren(HeroController);
-            if (heroController && !heroController.getHeroAlive()) {
+            if (!heroController || !heroController.getHeroAlive()) {
                 return
             }
             let enemyIns = instantiate(this.enemyPrefab);
             enemyIns.setParent(director.getScene().getChildByName("Canvas"))
-            const x = Math.floor(Math.random() * 421);
+            const x = Math.floor(Math.random() * 421 - 210);
             enemyIns.setPosition(x, 850);
         }, 0.3)
     }
 
     update(deltaTime: number) {
+        // 更新每一帧敌机的位置
+        if (this.enemyPrefab) {
 
+        }
     }
 
 

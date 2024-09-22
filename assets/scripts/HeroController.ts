@@ -70,7 +70,9 @@ export class HeroController extends Component {
              * 妖后玩家存回
              */
             this.scheduleOnce(() => {
-                this.node.destroy()
+                if (this.node) {
+                    this.node.destroy();
+                }
             }, 1)
         }
     }
