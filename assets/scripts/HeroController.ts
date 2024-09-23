@@ -1,4 +1,5 @@
 import {
+    Node,
     _decorator,
     BoxCollider2D, Collider2D,
     Component, Contact2DType,
@@ -6,7 +7,7 @@ import {
     EventTouch,
     instantiate,
     NodeEventType,
-    Prefab, resources, Sprite, SpriteFrame, UITransform, Vec3,
+    Prefab, resources, Sprite, SpriteFrame, UITransform, Vec3, tween,
 } from 'cc';
 
 const {ccclass, property} = _decorator;
@@ -16,6 +17,14 @@ export class HeroController extends Component {
 
     @property(Prefab)
     bulletPrefab: Prefab = null;
+    @property(Node)
+    restartBtn: Node = null;  // 引用复活按钮
+
+    /**
+     * 当玩家死亡时记录玩家的位置
+     * @private
+     */
+    private playerDiePosition: Vec3;
 
     private isHeroAlive: boolean = true;
 
@@ -60,25 +69,41 @@ export class HeroController extends Component {
      */
     private onBeginContact(slef: Collider2D, other: Collider2D) {
         if (other.tag === 0) {
+            // 将玩家死亡的位置记录下来
+            this.playerDiePosition = this.node.getPosition()
             this.isHeroAlive = false;
             this.bulletPrefab.destroy();
             resources.load("hero1_die/spriteFrame", SpriteFrame, (err, sp) => {
                 console.log("加载玩家死亡")
                 this.getComponent(Sprite).spriteFrame = sp;
             });
-            /**
-             * 妖后玩家存回
-             */
+            // 将玩家的状态保存下来
             this.scheduleOnce(() => {
                 if (this.node) {
-                    this.node.destroy();
+                    this.node.active = false;
                 }
             }, 1)
+            // 将重新开始游戏的按钮拖到中间来,移动到屏幕中央，带有缓动效果
+            const targetPosition = new Vec3(0, 0, 0);
+
+            tween(this.restartBtn)
+                .to(2, {position: targetPosition}, {easing: 'cubicOut'})
+                .start();
         }
     }
 
     public getHeroAlive(): boolean {
         return this.isHeroAlive;
+    }
+
+    // 复活玩家
+    public reviveHero(): void {
+        this.isHeroAlive = true;
+        this.node.active = true;
+        this.node.setPosition(this.playerDiePosition);
+        resources.load("hero1/SpriteFrame", SpriteFrame, (err, sp) => {
+            this.node.getComponent(Sprite).spriteFrame = sp;
+        })
     }
 }
 
