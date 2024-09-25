@@ -11,13 +11,16 @@ import {
     SpriteFrame,
     Vec2
 } from 'cc';
+import {DataManager} from "db://assets/scripts/common/DataManager";
 
 const {ccclass, property} = _decorator;
 
 @ccclass('EnemyController')
 export class EnemyController extends Component {
+    @property(Node)
+    dataManagerNode: Node = null;
 
-    private velocity: Vec2 =new Vec2(0,-10);
+    private velocity: Vec2 = new Vec2(0, -10);
 
     start() {
         let rigidBody2D = this.node.getComponent(RigidBody2D);
@@ -40,9 +43,17 @@ export class EnemyController extends Component {
         resources.load("enemy0_die/spriteFrame", SpriteFrame, (err, sp) => {
             this.node.getComponent(Sprite).spriteFrame = sp;
         })
+        // 杀敌+1
+        if (this.dataManagerNode) {
+            let dataScript = this.dataManagerNode.getComponent(DataManager);
+            if (dataScript) {
+                dataScript.addKill();
+            }
+        }
         // 禁用死亡敌机的碰撞
         let boxCollider2D = this.getComponent(BoxCollider2D);
         boxCollider2D.enabled = false;
+        // 积分+1
         // 300 毫米后销毁
         this.scheduleOnce(() => {
             this.node.destroy()
