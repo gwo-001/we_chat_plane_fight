@@ -1,4 +1,4 @@
-import {_decorator, Component, director, instantiate, Node, Prefab} from 'cc';
+import {_decorator, Button, Component, director, instantiate, Node, Prefab, Vec3} from 'cc';
 import {HeroController} from "db://assets/scripts/HeroController";
 
 const {ccclass, property} = _decorator;
@@ -7,6 +7,8 @@ const {ccclass, property} = _decorator;
 export class EnemyProducer extends Component {
     @property(Prefab)
     enemyPrefab: Prefab = null;
+    @property(Button)
+    restartBtn: Button | null = null;
 
     start() {
         // 如果玩家存活，那么每一秒产生一个敌机
@@ -27,6 +29,22 @@ export class EnemyProducer extends Component {
         if (this.enemyPrefab) {
 
         }
+    }
+
+    protected onLoad() {
+        this.restartBtn.node.on("click", this.restartBtnClick, this);
+    }
+
+    private restartBtnClick() {
+        console.log("点击复活按钮")
+        let hero = this.node.getChildByName("hero");
+        if (!hero) {
+            return;
+        }
+        // 复活英雄
+        hero.getComponent(HeroController)?.reviveHero()
+        // 复活按钮移开
+        this.restartBtn.node.setPosition(358.852, 0);
     }
 
 

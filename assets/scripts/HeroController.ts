@@ -20,13 +20,18 @@ export class HeroController extends Component {
     @property(Node)
     restartBtn: Node = null;  // 引用复活按钮
 
+
     /**
      * 当玩家死亡时记录玩家的位置
      * @private
      */
     private playerDiePosition: Vec3;
-
+    // 玩家是否处于无敌状态
+    private isInvincible = false;
+    // 玩家是否存活
     private isHeroAlive: boolean = true;
+    // 玩家复活后的无敌时间
+    private invincibleSeconds: number = 3;
 
     start() {
         // 让飞机跟随拖动的位置
@@ -72,7 +77,7 @@ export class HeroController extends Component {
             // 将玩家死亡的位置记录下来
             this.playerDiePosition = this.node.getPosition()
             this.isHeroAlive = false;
-            this.bulletPrefab.destroy();
+            // this.bulletPrefab.destroy();
             resources.load("hero1_die/spriteFrame", SpriteFrame, (err, sp) => {
                 console.log("加载玩家死亡")
                 this.getComponent(Sprite).spriteFrame = sp;
@@ -101,9 +106,20 @@ export class HeroController extends Component {
         this.isHeroAlive = true;
         this.node.active = true;
         this.node.setPosition(this.playerDiePosition);
-        resources.load("hero1/SpriteFrame", SpriteFrame, (err, sp) => {
-            this.node.getComponent(Sprite).spriteFrame = sp;
+        // 将玩家的图标换成
+        resources.load("hero1/spriteFrame", SpriteFrame, (err, sp) => {
+            this.getComponent(Sprite).spriteFrame = sp;
         })
+        // 给玩家设置一个无敌时间
+        let collider2D = this.node.getComponent(Collider2D);
+        if (!collider2D) {
+            return;
+        }
+        collider2D.enabled = false;
+        this.scheduleOnce(() => {
+            this.isInvincible = false;
+            collider2D.enabled = true;
+        }, this.invincibleSeconds);
     }
 }
 

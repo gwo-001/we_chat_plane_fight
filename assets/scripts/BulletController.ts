@@ -1,4 +1,4 @@
-import {_decorator, BoxCollider2D, Collider2D, Component, Contact2DType, RigidBody2D,  Vec2} from 'cc';
+import {_decorator, BoxCollider2D, Collider2D, Component, Contact2DType, RigidBody2D, Vec2} from 'cc';
 import {EnemyController} from "db://assets/scripts/EnemyController";
 
 /**
@@ -19,7 +19,10 @@ export class BulletController extends Component {
             return;
         }
         // 给子弹赋予一个初速度
-        thisNode.getComponent(RigidBody2D)!.linearVelocity = this.velocity;
+        let rigidBody2D = thisNode.getComponent(RigidBody2D);
+        if (rigidBody2D) {
+            rigidBody2D!.linearVelocity = this.velocity;
+        }
         // 监听子弹的碰撞
         let collider = thisNode.getComponent(BoxCollider2D);
         if (collider) {
@@ -37,15 +40,18 @@ export class BulletController extends Component {
 
     // 碰撞开始时的回调
     onBeginContact(self: Collider2D, other: Collider2D) {
-        if (other.tag === 0) {
-            // 调用一下敌机的摧毁动画
-            let enemyController = other.node.getComponent(EnemyController);
-            if (enemyController) {
-                enemyController.enemyDie()
-                // self.node.destroy();
-            }
-            // self.node.destroy();
+        if (other.tag !== 0) {
+            return;
         }
+        // 调用一下敌机的摧毁动画
+        let enemyController = other.node.getComponent(EnemyController);
+        if (enemyController) {
+            enemyController.enemyDie()
+        }
+        // 延迟销毁，确保安全。
+        this.scheduleOnce(() => {
+            self.node.destroy();
+        }, 0);
     }
 
 }

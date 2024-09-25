@@ -17,12 +17,13 @@ const {ccclass, property} = _decorator;
 @ccclass('EnemyController')
 export class EnemyController extends Component {
 
-    @property(Vec2)
-    velocity: Vec2 = null!;
+    private velocity: Vec2 =new Vec2(0,-10);
 
     start() {
         let rigidBody2D = this.node.getComponent(RigidBody2D);
-        this.node.getComponent(RigidBody2D)!.linearVelocity = this.velocity;
+        if (rigidBody2D) {
+            rigidBody2D.linearVelocity = this.velocity;
+        }
     }
 
     update(dt: number) {
