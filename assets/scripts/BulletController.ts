@@ -33,7 +33,6 @@ export class BulletController extends Component {
     update(dt: number) {
         // // 子弹飞出屏幕之后销毁掉
         if (this.node.getPosition().y > 852) {
-            console.log("子弹销毁")
             this.node.destroy();
         }
     }
@@ -44,9 +43,11 @@ export class BulletController extends Component {
             return;
         }
         // 调用一下敌机的摧毁动画
-        let enemyController = other.node.getComponent(EnemyController);
+        let enemyController = other.getComponent(EnemyController);
         if (enemyController) {
-            enemyController.enemyDie()
+            enemyController.enemyDie();
+        } else {
+            console.log("碰撞发生，但是敌机控制器为空");
         }
         // 延迟销毁，确保安全。
         this.scheduleOnce(() => {

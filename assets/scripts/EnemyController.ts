@@ -17,8 +17,6 @@ const {ccclass, property} = _decorator;
 
 @ccclass('EnemyController')
 export class EnemyController extends Component {
-    @property(Node)
-    dataManagerNode: Node = null;
 
     private velocity: Vec2 = new Vec2(0, -10);
 
@@ -44,12 +42,8 @@ export class EnemyController extends Component {
             this.node.getComponent(Sprite).spriteFrame = sp;
         })
         // 杀敌+1
-        if (this.dataManagerNode) {
-            let dataScript = this.dataManagerNode.getComponent(DataManager);
-            if (dataScript) {
-                dataScript.addKill();
-            }
-        }
+        let dataManager = DataManager.getInstance();
+        dataManager.addKill();
         // 禁用死亡敌机的碰撞
         let boxCollider2D = this.getComponent(BoxCollider2D);
         boxCollider2D.enabled = false;
@@ -57,7 +51,7 @@ export class EnemyController extends Component {
         // 300 毫米后销毁
         this.scheduleOnce(() => {
             this.node.destroy()
-        }, 0.5)
+        }, 0.3)
     }
 
 }

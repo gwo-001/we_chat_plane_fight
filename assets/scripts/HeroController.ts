@@ -20,8 +20,6 @@ export class HeroController extends Component {
     bulletPrefab: Prefab = null;
     @property(Node)
     restartBtn: Node = null;  // 引用复活按钮
-    @property(Node)
-    dataManagerNode: Node = null;
 
 
     /**
@@ -78,17 +76,11 @@ export class HeroController extends Component {
     private onBeginContact(slef: Collider2D, other: Collider2D) {
         if (other.tag === 0) {
             // 玩家死亡数+1
-            if (this.dataManagerNode) {
-                let dataScript = this.dataManagerNode.getComponent(DataManager);
-                if (dataScript) {
-                    dataScript.addDie();
-                }
-            }
+            DataManager.getInstance().addDie()
             // 将玩家死亡的位置记录下来
             this.playerDiePosition = this.node.getPosition()
             this.isHeroAlive = false;
             resources.load("hero1_die/spriteFrame", SpriteFrame, (err, sp) => {
-                console.log("加载玩家死亡")
                 this.getComponent(Sprite).spriteFrame = sp;
             });
             // 将玩家的状态保存下来

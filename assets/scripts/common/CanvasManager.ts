@@ -1,5 +1,6 @@
 import {_decorator, Button, Component, director, instantiate, Node, Prefab, RichText, Vec3} from 'cc';
 import {HeroController} from "db://assets/scripts/HeroController";
+import {EnemyController} from "db://assets/scripts/EnemyController";
 
 const {ccclass, property} = _decorator;
 
@@ -12,7 +13,6 @@ export class EnemyProducer extends Component {
     @property(RichText)
     killAndDie: RichText | null = null;
 
-    private enemyDieNumber = 0;
 
     start() {
         // 如果玩家存活，那么每一秒产生一个敌机
@@ -22,17 +22,13 @@ export class EnemyProducer extends Component {
                 return
             }
             let enemyIns = instantiate(this.enemyPrefab);
-            enemyIns.setParent(director.getScene().getChildByName("Canvas"))
+            enemyIns.setParent(director.getScene().getChildByName("Canvas"));
             const x = Math.floor(Math.random() * 421 - 210);
             enemyIns.setPosition(x, 850);
         }, 0.3)
     }
 
     update(deltaTime: number) {
-        // 更新每一帧敌机的位置
-        if (this.enemyPrefab) {
-
-        }
     }
 
     protected onLoad() {
@@ -51,10 +47,6 @@ export class EnemyProducer extends Component {
         this.restartBtn.node.setPosition(358.852, 0);
     }
 
-    public enemyDie() {
-        this.enemyDieNumber += 1;
-        this.killAndDie.string = String(this.enemyDieNumber);
-    }
 
 }
 
