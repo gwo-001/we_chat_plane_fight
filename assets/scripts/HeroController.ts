@@ -7,7 +7,7 @@ import {
     EventTouch,
     instantiate,
     NodeEventType,
-    Prefab, resources, Sprite, SpriteFrame, UITransform, Vec3, tween,
+    Prefab, resources, Sprite, SpriteFrame, UITransform, Vec3, tween, Color, Tween,
 } from 'cc';
 import {DataManager} from "db://assets/scripts/common/DataManager";
 
@@ -33,6 +33,8 @@ export class HeroController extends Component {
     private isHeroAlive: boolean = true;
     // 玩家复活后的无敌时间
     private invincibleSeconds: number = 3;
+    // 控制玩家闪烁的缓动
+    private heroShineTween: Tween<Sprite> | null = null;
 
     start() {
         // 让飞机跟随拖动的位置
@@ -58,13 +60,15 @@ export class HeroController extends Component {
             let playerPosition = this.node.getPosition();
             bulletIns.setPosition(playerPosition.x, playerPosition.y + 100);
         }, 0.5)
-        // 开启碰撞检测
+        // 监听碰撞检测
         let boxCollider2D = this.getComponent(BoxCollider2D);
         boxCollider2D.on(Contact2DType.BEGIN_CONTACT, this.onBeginContact, this)
     }
 
     update(deltaTime: number) {
-
+        if (!this.isInvincible && this.isHeroAlive) {
+            this.heroNormalStatus();
+        }
     }
 
     /**
@@ -91,7 +95,6 @@ export class HeroController extends Component {
             }, 1)
             // 将重新开始游戏的按钮拖到中间来,移动到屏幕中央，带有缓动效果
             const targetPosition = new Vec3(0, 0, 0);
-
             tween(this.restartBtn)
                 .to(2, {position: targetPosition}, {easing: 'cubicOut'})
                 .start();
@@ -116,11 +119,43 @@ export class HeroController extends Component {
         if (!collider2D) {
             return;
         }
+        // 将玩家的无敌位置为true
+        this.isInvincible = true;
         collider2D.enabled = false;
         this.scheduleOnce(() => {
             this.isInvincible = false;
             collider2D.enabled = true;
         }, this.invincibleSeconds);
+        // 给玩家设置无敌时间的闪烁动画
+        this.heroShine();
+    }
+
+    // 当玩家复活后会有一个闪烁的效果
+    private heroShine() {
+        let sprite = this.getComponent(Sprite);
+        if (!sprite) {
+            return;
+        }
+        console.log("闪烁")
+        this.heroShineTween = tween(sprite);
+        this.heroShineTween.repeatForever(
+            tween()
+                .to(0.8, {color: new Color(255, 255, 255, 50)})  // 变半透明
+                .to(0.8, {color: new Color(255, 255, 255, 255)}) // 变回全透明
+        ).start()
+    }
+
+    // 当玩家的无敌时间过掉了，那么返回常态
+    private heroNormalStatus() {
+        // 停止所有动画
+        this.heroShineTween.stop();
+        let sprite = this.getComponent(Sprite);
+        console.log("停止闪烁回到常态")
+        resources.load("hero1/spriteFrame", SpriteFrame, (err, sp) => {
+            sprite.spriteFrame = sp;
+            sprite.color = new Color(255, 255, 255);
+        })
+
     }
 }
 

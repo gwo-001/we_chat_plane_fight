@@ -25,7 +25,7 @@ export class EnemyProducer extends Component {
             enemyIns.setParent(director.getScene().getChildByName("Canvas"));
             const x = Math.floor(Math.random() * 421 - 210);
             enemyIns.setPosition(x, 850);
-        }, 0.3)
+        }, 0.5)
     }
 
     update(deltaTime: number) {
@@ -36,7 +36,6 @@ export class EnemyProducer extends Component {
     }
 
     private restartBtnClick() {
-        console.log("点击复活按钮")
         let hero = this.node.getChildByName("hero");
         if (!hero) {
             return;

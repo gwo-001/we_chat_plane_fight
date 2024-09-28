@@ -42,13 +42,6 @@ export class BulletController extends Component {
         if (other.tag !== 0) {
             return;
         }
-        // 调用一下敌机的摧毁动画
-        let enemyController = other.getComponent(EnemyController);
-        if (enemyController) {
-            enemyController.enemyDie();
-        } else {
-            console.log("碰撞发生，但是敌机控制器为空");
-        }
         // 延迟销毁，确保安全。
         this.scheduleOnce(() => {
             self.node.destroy();

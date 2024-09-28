@@ -74,7 +74,7 @@
   },
   {
     "__type__": "cc.Node",
-    "_name": "",
+    "_name": "1",
     "_objFlags": 0,
     "__editorExtras__": {},
     "_parent": {
@@ -131,7 +131,6 @@
     "__prefab": {
       "__id__": 4
     },
-    "speed": 800,
     "velocity": null,
     "_id": ""
   },
@@ -237,7 +236,6 @@
     "__prefab": {
       "__id__": 11
     },
-    "speed": 800,
     "velocity": {
       "__type__": "cc.Vec2",
       "x": 0,
