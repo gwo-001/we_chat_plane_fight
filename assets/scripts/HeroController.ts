@@ -10,8 +10,10 @@ import {
     Prefab, resources, Sprite, SpriteFrame, UITransform, Vec3, tween, Color, Tween,
 } from 'cc';
 import {DataManager} from "db://assets/scripts/common/DataManager";
+import {EventTypeEnum} from "db://assets/scripts/constants/EventTypeEnum";
 
 const {ccclass, property} = _decorator;
+const eventTarget = new EventTarget();
 
 @ccclass('HeroController')
 export class HeroController extends Component {
@@ -93,11 +95,13 @@ export class HeroController extends Component {
                     this.node.active = false;
                 }
             }, 1)
-            // 将重新开始游戏的按钮拖到中间来,移动到屏幕中央，带有缓动效果
-            const targetPosition = new Vec3(0, 0, 0);
-            tween(this.restartBtn)
-                .to(2, {position: targetPosition}, {easing: 'cubicOut'})
-                .start();
+            // // 将重新开始游戏的按钮拖到中间来,移动到屏幕中央，带有缓动效果
+            // const targetPosition = new Vec3(0, 0, 0);
+            // tween(this.restartBtn)
+            //     .to(2, {position: targetPosition}, {easing: 'cubicOut'})
+            //     .start();
+            // 玩家死亡消息
+            director.emit(EventTypeEnum.HERO_DIE);
         }
     }
 
@@ -148,9 +152,8 @@ export class HeroController extends Component {
     // 当玩家的无敌时间过掉了，那么返回常态
     private heroNormalStatus() {
         // 停止所有动画
-        this.heroShineTween.stop();
+        this.heroShineTween?.stop();
         let sprite = this.getComponent(Sprite);
-        console.log("停止闪烁回到常态")
         resources.load("hero1/spriteFrame", SpriteFrame, (err, sp) => {
             sprite.spriteFrame = sp;
             sprite.color = new Color(255, 255, 255);

@@ -1,6 +1,7 @@
-import {_decorator, Button, Component, director, instantiate, Node, Prefab, RichText, Vec3} from 'cc';
+import {_decorator, Button, Component, director, instantiate, Node, Prefab, RichText, tween, Vec3} from 'cc';
 import {HeroController} from "db://assets/scripts/HeroController";
-import {EnemyController} from "db://assets/scripts/EnemyController";
+
+import {EventTypeEnum} from "db://assets/scripts/constants/EventTypeEnum"
 
 const {ccclass, property} = _decorator;
 
@@ -16,16 +17,10 @@ export class EnemyProducer extends Component {
 
     start() {
         // 如果玩家存活，那么每一秒产生一个敌机
-        this.schedule(() => {
-            let heroController = this.getComponentInChildren(HeroController);
-            if (!heroController || !heroController.getHeroAlive()) {
-                return
-            }
-            let enemyIns = instantiate(this.enemyPrefab);
-            enemyIns.setParent(director.getScene().getChildByName("Canvas"));
-            const x = Math.floor(Math.random() * 421 - 210);
-            enemyIns.setPosition(x, 850);
-        }, 0.5)
+        this.produceEnemy();
+        // 监听玩家死亡事件
+        // this.node.on(EventTypeEnum.HERO_DIE, this.onHeroDie, this);
+        director.on(EventTypeEnum.HERO_DIE, this.onHeroDie, this);
     }
 
     update(deltaTime: number) {
@@ -46,7 +41,28 @@ export class EnemyProducer extends Component {
         this.restartBtn.node.setPosition(358.852, 0);
     }
 
+    private produceEnemy() {
 
+        this.schedule(() => {
+            let heroController = this.getComponentInChildren(HeroController);
+            if (!heroController || !heroController.getHeroAlive()) {
+                return
+            }
+            let enemyIns = instantiate(this.enemyPrefab);
+            enemyIns.setParent(director.getScene().getChildByName("Canvas"));
+            const x = Math.floor(Math.random() * 421 - 210);
+            enemyIns.setPosition(x, 850);
+        }, 0.5)
+    }
+
+    // 当玩家阵亡时
+    private onHeroDie() {
+        // 将复活按钮移动到屏幕中间来
+        const targetPosition = new Vec3(0, 0, 0);
+        tween(this.restartBtn.node)
+            .to(2, {position: targetPosition}, {easing: 'cubicOut'})
+            .start();
+    }
 }
 
 
