@@ -125,7 +125,6 @@ export class HeroController extends Component {
             collider2D.enabled = true;
             this.heroStatus = HeroStatusEnum.NORMAL;
         }, this.invincibleSeconds);
-        // 给玩家设置无敌时间的闪烁动画
     }
 
     // 当玩家复活后会有一个闪烁的效果

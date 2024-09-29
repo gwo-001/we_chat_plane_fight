@@ -38,7 +38,6 @@ export class EnemyController extends Component {
         }
     }
 
-
     private onBeginContact(self: BoxCollider2D, other: BoxCollider2D) {
         // 如果碰撞的子弹，那么走到敌人死亡逻辑
         if (other.tag !== 1) {
@@ -52,7 +51,6 @@ export class EnemyController extends Component {
                 self.node.getComponent(Sprite).spriteFrame = sp;
             }
         })
-        console.log("加载敌机死亡图片成功")
         // 杀敌+1
         let dataManager = DataManager.getInstance();
         dataManager.addKill();
