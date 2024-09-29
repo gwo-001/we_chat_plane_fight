@@ -38,14 +38,21 @@ export class EnemyController extends Component {
         }
     }
 
-    /**
-     * 敌机死亡
-     */
-    enemyDie() {
+
+    private onBeginContact(self: BoxCollider2D, other: BoxCollider2D) {
+        // 如果碰撞的子弹，那么走到敌人死亡逻辑
+        if (other.tag !== 1) {
+            return;
+        }
         // 加载被摧毁的图片
         resources.load("enemy0_die/spriteFrame", SpriteFrame, (err, sp) => {
-            this.node.getComponent(Sprite).spriteFrame = sp;
+            if (err) {
+                console.log("加载敌机图片异常！", err);
+            } else {
+                self.node.getComponent(Sprite).spriteFrame = sp;
+            }
         })
+        console.log("加载敌机死亡图片成功")
         // 杀敌+1
         let dataManager = DataManager.getInstance();
         dataManager.addKill();
@@ -57,15 +64,6 @@ export class EnemyController extends Component {
         this.scheduleOnce(() => {
             this.node.destroy()
         }, 0.3)
-    }
-
-
-    private onBeginContact(self:BoxCollider2D,other:BoxCollider2D) {
-        // 如果碰撞的子弹，那么走到敌人死亡逻辑
-        if (other.tag !== 1) {
-            return;
-        }
-        this.enemyDie();
     }
 }
 

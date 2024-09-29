@@ -1,5 +1,4 @@
 import {_decorator, Button, Component, director, instantiate, Node, Prefab, RichText, tween, Vec3} from 'cc';
-import {HeroController} from "db://assets/scripts/HeroController";
 
 import {EventTypeEnum} from "db://assets/scripts/constants/EventTypeEnum"
 
@@ -13,17 +12,20 @@ export class EnemyProducer extends Component {
     restartBtn: Button | null = null;
     @property(RichText)
     killAndDie: RichText | null = null;
-
+    // 敌机生产的开关
+    private productEnemy = true;
 
     start() {
         // 如果玩家存活，那么每一秒产生一个敌机
         this.produceEnemy();
         // 监听玩家死亡事件
-        // this.node.on(EventTypeEnum.HERO_DIE, this.onHeroDie, this);
         director.on(EventTypeEnum.HERO_DIE, this.onHeroDie, this);
+        // 监听复活
+        director.on(EventTypeEnum.HERO_REVIVE, this.onHeroRevive, this);
     }
 
     update(deltaTime: number) {
+
     }
 
     protected onLoad() {
@@ -35,17 +37,13 @@ export class EnemyProducer extends Component {
         if (!hero) {
             return;
         }
-        // 复活英雄
-        hero.getComponent(HeroController)?.reviveHero()
-        // 复活按钮移开
-        this.restartBtn.node.setPosition(358.852, 0);
+        // 发布复活事件
+        director.emit(EventTypeEnum.HERO_REVIVE);
     }
 
     private produceEnemy() {
-
         this.schedule(() => {
-            let heroController = this.getComponentInChildren(HeroController);
-            if (!heroController || !heroController.getHeroAlive()) {
+            if (!this.productEnemy) {
                 return
             }
             let enemyIns = instantiate(this.enemyPrefab);
@@ -62,6 +60,14 @@ export class EnemyProducer extends Component {
         tween(this.restartBtn.node)
             .to(2, {position: targetPosition}, {easing: 'cubicOut'})
             .start();
+        //
+        this.productEnemy = false;
+    }
+
+    // 当监听到玩家复活的事件之后
+    private onHeroRevive() {
+        this.restartBtn.node.setPosition(new Vec3(358.852, 0, 0))
+        this.productEnemy = true;
     }
 }
 

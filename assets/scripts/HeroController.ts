@@ -1,16 +1,27 @@
 import {
-    Node,
     _decorator,
-    BoxCollider2D, Collider2D,
-    Component, Contact2DType,
+    BoxCollider2D,
+    Collider2D,
+    Color,
+    Component,
+    Contact2DType,
     director,
     EventTouch,
     instantiate,
+    Node,
     NodeEventType,
-    Prefab, resources, Sprite, SpriteFrame, UITransform, Vec3, tween, Color, Tween,
+    Prefab,
+    resources,
+    Sprite,
+    SpriteFrame,
+    tween,
+    Tween,
+    UITransform,
+    Vec3,
 } from 'cc';
 import {DataManager} from "db://assets/scripts/common/DataManager";
 import {EventTypeEnum} from "db://assets/scripts/constants/EventTypeEnum";
+import {HeroStatusEnum} from "db://assets/scripts/constants/HeroStatusEnum";
 
 const {ccclass, property} = _decorator;
 const eventTarget = new EventTarget();
@@ -24,6 +35,11 @@ export class HeroController extends Component {
     restartBtn: Node = null;  // 引用复活按钮
 
 
+    /**
+     * 玩家状态机
+     * @private
+     */
+    private heroStatus: HeroStatusEnum = null;
     /**
      * 当玩家死亡时记录玩家的位置
      * @private
@@ -39,38 +55,22 @@ export class HeroController extends Component {
     private heroShineTween: Tween<Sprite> | null = null;
 
     start() {
+        // 将玩家状态置为普通状态
+        this.heroStatus = HeroStatusEnum.NORMAL;
         // 让飞机跟随拖动的位置
-        this.node.on(NodeEventType.TOUCH_MOVE, (event: EventTouch) => {
-            // 这里获取到的是世界坐标。要转为相对坐标
-            // 获取触摸点的世界坐标
-            const touchPos = event.getUILocation(); // 获取世界坐标，UI场景适用
-            // 将世界坐标转换为节点的局部坐标
-            const localPos = this.node.parent!.getComponent(UITransform)!.convertToNodeSpaceAR(new Vec3(touchPos.x, touchPos.y, 0));
-            this.node.setPosition(localPos.x, localPos.y);
-        })
-        // 没间隔0.5秒创建一个子弹
-        this.schedule(() => {
-            // 如果玩家已经死亡，那么就不要创建子弹了
-            if (!this.node) {
-                return;
-            }
-            if (!this.isHeroAlive) {
-                return;
-            }
-            let bulletIns = instantiate(this.bulletPrefab);
-            bulletIns.setParent(director.getScene().getChildByName("Canvas"));
-            let playerPosition = this.node.getPosition();
-            bulletIns.setPosition(playerPosition.x, playerPosition.y + 100);
-        }, 0.5)
+        this.heroFollowTouchMove();
+        // 玩家的射击逻辑
+        this.heroShot();
         // 监听碰撞检测
-        let boxCollider2D = this.getComponent(BoxCollider2D);
-        boxCollider2D.on(Contact2DType.BEGIN_CONTACT, this.onBeginContact, this)
+        this.getComponent(BoxCollider2D)?.on(Contact2DType.BEGIN_CONTACT, this.onBeginContact, this);
+        // 监听玩家复活消息
+        director.on(EventTypeEnum.HERO_REVIVE, this.reviveHero, this);
     }
 
     update(deltaTime: number) {
-        if (!this.isInvincible && this.isHeroAlive) {
-            this.heroNormalStatus();
-        }
+        // if (!this.isInvincible && this.isHeroAlive) {
+        //     this.heroNormalStatus();
+        // }
     }
 
     /**
@@ -79,13 +79,13 @@ export class HeroController extends Component {
      * @param other 碰撞的对象
      * @private
      */
-    private onBeginContact(slef: Collider2D, other: Collider2D) {
+    private onBeginContact(self: Collider2D, other: Collider2D) {
         if (other.tag === 0) {
             // 玩家死亡数+1
             DataManager.getInstance().addDie()
             // 将玩家死亡的位置记录下来
             this.playerDiePosition = this.node.getPosition()
-            this.isHeroAlive = false;
+            this.heroStatus = HeroStatusEnum.DIE;
             resources.load("hero1_die/spriteFrame", SpriteFrame, (err, sp) => {
                 this.getComponent(Sprite).spriteFrame = sp;
             });
@@ -95,23 +95,18 @@ export class HeroController extends Component {
                     this.node.active = false;
                 }
             }, 1)
-            // // 将重新开始游戏的按钮拖到中间来,移动到屏幕中央，带有缓动效果
-            // const targetPosition = new Vec3(0, 0, 0);
-            // tween(this.restartBtn)
-            //     .to(2, {position: targetPosition}, {easing: 'cubicOut'})
-            //     .start();
             // 玩家死亡消息
             director.emit(EventTypeEnum.HERO_DIE);
         }
     }
 
     public getHeroAlive(): boolean {
-        return this.isHeroAlive;
+        return this.heroStatus !== HeroStatusEnum.DIE;
     }
 
     // 复活玩家
-    public reviveHero(): void {
-        this.isHeroAlive = true;
+    private reviveHero(): void {
+        this.heroStatus = HeroStatusEnum.INVINCIBLE;
         this.node.active = true;
         this.node.setPosition(this.playerDiePosition);
         // 将玩家的图标换成
@@ -124,14 +119,13 @@ export class HeroController extends Component {
             return;
         }
         // 将玩家的无敌位置为true
-        this.isInvincible = true;
         collider2D.enabled = false;
+        this.heroShine();
         this.scheduleOnce(() => {
-            this.isInvincible = false;
             collider2D.enabled = true;
+            this.heroStatus = HeroStatusEnum.NORMAL;
         }, this.invincibleSeconds);
         // 给玩家设置无敌时间的闪烁动画
-        this.heroShine();
     }
 
     // 当玩家复活后会有一个闪烁的效果
@@ -140,25 +134,52 @@ export class HeroController extends Component {
         if (!sprite) {
             return;
         }
-        console.log("闪烁")
         this.heroShineTween = tween(sprite);
-        this.heroShineTween.repeatForever(
+        console.log("开始闪烁")
+        this.heroShineTween.repeat(this.invincibleSeconds,
             tween()
-                .to(0.8, {color: new Color(255, 255, 255, 50)})  // 变半透明
-                .to(0.8, {color: new Color(255, 255, 255, 255)}) // 变回全透明
-        ).start()
+                .to(0.5, {color: new Color(255, 255, 255, 50)})  // 变半透明
+                .to(0.5, {color: new Color(255, 255, 255, 255)}) // 变回全透明
+        ).call(() => {
+            let sprite = this.getComponent(Sprite);
+            resources.load("hero1/spriteFrame", SpriteFrame, (err, sp) => {
+                sprite.spriteFrame = sp;
+                sprite.color = new Color(255, 255, 255);
+            })
+        }).start()
     }
 
-    // 当玩家的无敌时间过掉了，那么返回常态
-    private heroNormalStatus() {
-        // 停止所有动画
-        this.heroShineTween?.stop();
-        let sprite = this.getComponent(Sprite);
-        resources.load("hero1/spriteFrame", SpriteFrame, (err, sp) => {
-            sprite.spriteFrame = sp;
-            sprite.color = new Color(255, 255, 255);
-        })
+    // 玩家射击逻辑
+    private heroShot() {
+        // 没间隔0.5秒创建一个子弹
+        this.schedule(() => {
+            // 如果玩家已经死亡，那么就不要创建子弹了
+            if (!this.node) {
+                return;
+            }
+            if (this.heroStatus === HeroStatusEnum.DIE) {
+                return;
+            }
+            // if (!this.isHeroAlive) {
+            //     return;
+            // }
+            let bulletIns = instantiate(this.bulletPrefab);
+            bulletIns.setParent(director.getScene().getChildByName("Canvas"));
+            let playerPosition = this.node.getPosition();
+            bulletIns.setPosition(playerPosition.x, playerPosition.y + 100);
+        }, 0.5)
+    }
 
+    // 玩家跟随触摸的位置来变换方向
+    private heroFollowTouchMove() {
+        this.node.on(NodeEventType.TOUCH_MOVE, (event: EventTouch) => {
+            // 这里获取到的是世界坐标。要转为相对坐标
+            // 获取触摸点的世界坐标
+            const touchPos = event.getUILocation(); // 获取世界坐标，UI场景适用
+            // 将世界坐标转换为节点的局部坐标
+            const localPos = this.node.parent!.getComponent(UITransform)!.convertToNodeSpaceAR(new Vec3(touchPos.x, touchPos.y, 0));
+            this.node.setPosition(localPos.x, localPos.y);
+        })
     }
 }
 
