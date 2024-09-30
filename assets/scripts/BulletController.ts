@@ -1,4 +1,4 @@
-import {_decorator, BoxCollider2D, Collider2D, Component, Contact2DType, RigidBody2D, Vec2} from 'cc';
+import {_decorator, BoxCollider2D, Collider2D, Component, Contact2DType, director, RigidBody2D, Vec2} from 'cc';
 import {EnemyController} from "db://assets/scripts/EnemyController";
 
 /**
@@ -42,12 +42,19 @@ export class BulletController extends Component {
         if (other.tag !== 0) {
             return;
         }
-        // 延迟销毁，确保安全。
+        other.node.getComponent(BoxCollider2D).enabled = false;
+         // 延迟销毁，确保安全。
         this.scheduleOnce(() => {
             self.node.destroy();
         }, 0);
     }
 
+    private onEndContact(self: Collider2D, other: Collider2D) {
+        // // // 延迟销毁，确保安全。
+        // this.scheduleOnce(() => {
+        //     self.node.destroy();
+        // }, 0);
+    }
 }
 
 

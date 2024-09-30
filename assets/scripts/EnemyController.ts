@@ -21,6 +21,11 @@ export class EnemyController extends Component {
     private velocity: Vec2 = new Vec2(0, -10);
 
     start() {
+
+    }
+
+
+    onLoad() {
         let rigidBody2D = this.node.getComponent(RigidBody2D);
         if (rigidBody2D) {
             rigidBody2D.linearVelocity = this.velocity;
@@ -28,7 +33,7 @@ export class EnemyController extends Component {
         // 监听子弹的碰撞
         let collider = this.getComponent(BoxCollider2D);
         if (collider) {
-            collider.on(Contact2DType.BEGIN_CONTACT, this.onBeginContact, this)
+            collider.on(Contact2DType.BEGIN_CONTACT, this.onBeginContact, this);
         }
     }
 
@@ -43,25 +48,26 @@ export class EnemyController extends Component {
         if (other.tag !== 1) {
             return;
         }
+        // 杀敌+1
+        DataManager.getInstance()?.addKill();
+        // 禁用死亡敌机的碰撞
+        self.node.getComponent(BoxCollider2D).enabled = false;
         // 加载被摧毁的图片
         resources.load("enemy0_die/spriteFrame", SpriteFrame, (err, sp) => {
             if (err) {
                 console.log("加载敌机图片异常！", err);
+                return;
             } else {
                 self.node.getComponent(Sprite).spriteFrame = sp;
             }
+            // 积分+1
+            // 300 毫米后销毁
+            this.scheduleOnce(() => {
+                self.node.destroy()
+            }, 0.3)
         })
-        // 杀敌+1
-        let dataManager = DataManager.getInstance();
-        dataManager.addKill();
-        // 禁用死亡敌机的碰撞
-        let boxCollider2D = this.getComponent(BoxCollider2D);
-        boxCollider2D.enabled = false;
-        // 积分+1
-        // 300 毫米后销毁
-        this.scheduleOnce(() => {
-            this.node.destroy()
-        }, 0.3)
+
+
     }
 }
 
